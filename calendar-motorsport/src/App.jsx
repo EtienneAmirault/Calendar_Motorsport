@@ -6,7 +6,9 @@ function App() {
       <h1 className="text-3xl font-bold text-red-500">
         Calendrier Motorsport 2026
       </h1>
-      <Calendar />
+      <div className="h-screen flex flex-col">
+        <Calendar />
+      </div>
     </>
   );
 }

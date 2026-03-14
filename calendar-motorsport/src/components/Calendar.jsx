@@ -1,5 +1,5 @@
 import { events } from "../data.js";
-
+import Evenement from "./Evenement.jsx";
 function Calendar() {
   const MOIS = [
     "Janvier",
@@ -28,6 +28,7 @@ function Calendar() {
 
   let premjour = new Date(2026, 3, 1).getDay();
   let nbjour = new Date(2026, 4, 0).getDate();
+  let moisActuel = new Date(2026, 3, 1).getMonth();
   const casesVides = premjour === 0 ? 6 : premjour - 1;
 
   const jours = [];
@@ -39,62 +40,49 @@ function Calendar() {
     vides.push("");
   }
   const calendrier = vides.concat(jours);
-  const lignes = [];
-  for (let i = 0; i < calendrier.length; i += 7) {
-    lignes.push(calendrier.slice(i, i + 7));
-  }
 
   return (
     <>
-      <div>Composant Calendar</div>
-      <table className="w-full border-collapse h-[80vh] table-fixed">
-        <thead>
-          <tr className="h-15">
-            {JOURS.map((jour) => (
-              <th
-                key={jour}
-                className="text-center p-2 font-bold bg-gray-200 text-lg"
-              >
-                {jour}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {lignes.map((ligne, i) => (
-            <tr key={i}>
-              {ligne.map((jour, j) => {
-                const evenementDuJour = events.filter((event) =>
-                  event.sessions.some(
-                    (session) => new Date(session.date).getDate() == jour,
-                  ),
+      <div className="grid grid-cols-7 ">
+        {JOURS.map((jour) => (
+          <div
+            key={jour}
+            className="text-center border border-gray-400 font-bold bg-gray-200 text-lg"
+          >
+            {jour}
+          </div>
+        ))}
+      </div>
+      <div className="grid grid-cols-7 flex-1 grid-rows-6">
+        {calendrier.map((jour) => {
+          const evenementDuJour = events.filter((event) =>
+            event.sessions.some(
+              (session) =>
+                new Date(session.date).getDate() == jour &&
+                new Date(session.date).getMonth() == moisActuel,
+            ),
+          );
+          return (
+            <div className="border border-gray-200 overflow-hidden" key={jour}>
+              {jour}{" "}
+              {evenementDuJour.map((evt) => {
+                const sessionDuJour = evt.sessions.filter(
+                  (session) =>
+                    new Date(session.date).getDate() == jour &&
+                    new Date(session.date).getMonth() == moisActuel,
                 );
                 return (
-                  <td className="align-top p-2 border border-gray-200" key={j}>
-                    {jour}{" "}
-                    {evenementDuJour.map((evt) => {
-                      const sessionDuJour = evt.sessions.filter(
-                        (session) => new Date(session.date).getDate() == jour,
-                      );
-                      return (
-                        <div key={evt.id}>
-                          {evt.nom}
-                          {sessionDuJour.map((session) => (
-                            <div key={session.type}>
-                              {" "}
-                              {session.type} {session.heure}{" "}
-                            </div>
-                          ))}
-                        </div>
-                      );
-                    })}
-                  </td>
+                  <Evenement
+                    key={evt.id}
+                    evt={evt}
+                    sessionDuJour={sessionDuJour}
+                  />
                 );
               })}
-            </tr>
-          ))}
-        </tbody>
-      </table>
+            </div>
+          );
+        })}
+      </div>
     </>
   );
 }
